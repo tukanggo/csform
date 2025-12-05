@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Requirement Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 30px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 12px; }
+    input, textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; }
+    button { margin-top: 20px; padding: 12px; width: 100%; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Customer Requirement Form</h2>
+
+    <label>Name:</label>
+    <input type="text" name="name">
+
+    <label>Address:</label>
+    <input type="text" name="address">
+
+    <label>Contact Number:</label>
+    <input type="text" name="contact">
+
+    <label>Requirement:</label>
+    <textarea name="requirement" rows="4"></textarea>
+
+    <label>Preferred Date:</label>
+    <input type="date" name="preferred_date">
+
+    <label>Preferred Time:</label>
+    <input type="time" name="preferred_time">
+
+    <label>Upload Pictures:</label>
+    <input type="file" name="photos" accept="image/*" multiple>
+
+    <button type="button" id="submitBtn">Submit</button>
+  </div>
+
+  <!-- Amplify JS -->
+  <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
+  <script>
+    // Configure Amplify
+    aws_amplify.Amplify.configure({
+      Auth: {
+        identityPoolId: "YOUR_IDENTITY_POOL_ID",
+        region: "YOUR_REGION"
+      },
+      Storage: {
+        AWSS3: {
+          bucket: "YOUR_BUCKET_NAME",
+          region: "YOUR_REGION"
+        }
+      }
+    });
+
+    async function uploadPhotos(files) {
+      const uploadedKeys = [];
+      for (const file of files) {
+        const key = `uploads/${Date.now()}-${file.name}`;
+        await aws_amplify.Storage.put(key, file, { contentType: file.type });
+        uploadedKeys.push(key);
+      }
+      return uploadedKeys;
+    }
+
+    async function submitForm(formData, photoKeys) {
+      // Replace with your AWS API Gateway URL
+      const apiUrl = "YOUR_API_GATEWAY_URL";
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, photos: photoKeys })
+      });
+      alert("Form submitted successfully!");
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const formData = {
+        name: document.querySelector('input[name="name"]').value,
+        address: document.querySelector('input[name="address"]').value,
+        contact: document.querySelector('input[name="contact"]').value,
+        requirement: document.querySelector('textarea[name="requirement"]').value,
+        preferred_date: document.querySelector('input[name="preferred_date"]').value,
+        preferred_time: document.querySelector('input[name="preferred_time"]').value
+      };
+
+      const files = document.querySelector('input[name="photos"]').files;
+      const photoKeys = await uploadPhotos(files);
+      await submitForm(formData, photoKeys);
+    });
+  </script>
+</body>
+</html>
