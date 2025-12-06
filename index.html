@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Requirement Form 1.0</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 30px; }
     .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
@@ -32,7 +31,7 @@
     <textarea name="requirement" rows="4"></textarea>
 
     <label>Preferred Date:</label>
-    <input type="text" name="preferred_date" id="preferred_date" placeholder="dd/mm/yyyy">
+    <input type="date" name="preferred_date" id="preferred_date">
 
     <label>Preferred Time:</label>
     <input type="time" name="preferred_time">
@@ -40,14 +39,32 @@
     <button type="button" id="submitBtn">Submit</button>
   </div>
 
-  <!-- JS Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
   <script>
-    // Flatpickr 日期选择器
-    flatpickr("#preferred_date", {
-      dateFormat: "d/m/Y",
-      allowInput: true
-    });
+    // Submit form without photo upload
+    async function submitForm(formData) {
+      const apiUrl = "YOUR_API_GATEWAY_URL";
 
-    // 提交表单（
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      alert("Form submitted successfully!");
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const formData = {
+        name: document.querySelector('input[name="name"]').value,
+        address: document.querySelector('input[name="address"]').value,
+        contact: document.querySelector('input[name="contact"]').value,
+        requirement: document.querySelector('textarea[name="requirement"]').value,
+        preferred_date: document.querySelector('input[name="preferred_date"]').value,
+        preferred_time: document.querySelector('input[name="preferred_time"]').value
+      };
+
+      await submitForm(formData);
+    });
+  </script>
+</body>
+</html>
