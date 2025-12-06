@@ -4,69 +4,73 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customer Requirement Form</title>
-<script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
-<style>
-body { font-family: Arial; background: #f2f2f2; padding: 30px; }
-.container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; }
-label { display: block; margin-top: 12px; font-weight: bold; }
-input, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px; }
-button { margin-top: 20px; padding: 12px; width: 100%; background: #4CAF50; color: white; border: none; border-radius: 8px; }
-</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
 <div class="container">
-<h2>Customer Requirement Form</h2>
-
-<label>Name:</label>
-<input type="text" name="name" required>
-
-<label>Address:</label>
-<input type="text" name="address" required>
-
-<label>Contact Number:</label>
-<input type="text" name="contact" required>
-
-<label>Requirement Details:</label>
-<textarea name="requirement" rows="4" required></textarea>
-
-<label>Preferred Date:</label>
-<input type="date" name="preferred_date" required>
-
-<label>Preferred Time:</label>
-<input type="time" name="preferred_time" required>
-
-<button type="button" id="submitBtn">Submit</button>
+  <h2>Customer Requirement Form</h2>
+  <input type="text" name="name" placeholder="Name">
+  <input type="text" name="address" placeholder="Address">
+  <input type="text" name="contact" placeholder="Contact">
+  <textarea name="requirement" placeholder="Requirement"></textarea>
+  <input type="text" id="preferred_date" placeholder="dd/mm/yyyy">
+  <input type="time" name="preferred_time">
+  <input type="file" name="photos" multiple>
+  <button id="submitBtn">Submit</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
+
 <script>
+flatpickr("#preferred_date", { dateFormat: "d/m/Y" });
+
 aws_amplify.Amplify.configure({
+    Auth: {
+        identityPoolId: "YOUR_IDENTITY_POOL_ID",
+        region: "ap-southeast-1"
+    },
+    Storage: {
+        AWSS3: {
+            bucket: "customer-form-uploads",
+            region: "ap-southeast-1"
+        }
+    },
     API: {
         endpoints: [
             {
-                name: "FormAPI",
-                endpoint: "YOUR_AMPLIFY_API_ENDPOINT" // Replace with your actual API URL
+                name: "CustomerAPI",
+                endpoint: "YOUR_API_GATEWAY_URL",
+                region: "ap-southeast-1"
             }
         ]
     }
 });
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
-    const data = {
+async function uploadPhotos(files){
+    const urls = [];
+    for(const file of files){
+        const key = `uploads/${Date.now()}-${file.name}`;
+        await aws_amplify.Storage.put(key, file, {contentType:file.type});
+        urls.push(`https://customer-form-uploads.s3.ap-southeast-1.amazonaws.com/${key}`);
+    }
+    return urls;
+}
+
+document.getElementById("submitBtn").addEventListener("click", async ()=>{
+    const formData = {
         name: document.querySelector('input[name="name"]').value,
         address: document.querySelector('input[name="address"]').value,
         contact: document.querySelector('input[name="contact"]').value,
         requirement: document.querySelector('textarea[name="requirement"]').value,
-        preferred_date: document.querySelector('input[name="preferred_date"]').value,
+        preferred_date: document.querySelector('#preferred_date').value,
         preferred_time: document.querySelector('input[name="preferred_time"]').value
     };
+    const files = document.querySelector('input[name="photos"]').files;
+    const photoUrls = await uploadPhotos(files);
 
-    try {
-        await aws_amplify.API.post("FormAPI", "/submit", { body: data });
-        alert("Form submitted successfully!");
-    } catch (err) {
-        console.error(err);
-        alert("Submission failed. Please try again!");
-    }
+    await aws_amplify.API.post("CustomerAPI", "/submit", { body: {...formData, photos: photoUrls} });
+    alert("Form submitted successfully!");
 });
 </script>
 </body>
