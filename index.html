@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Requirement Form</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 30px; }
     .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
@@ -31,7 +32,7 @@
     <textarea name="requirement" rows="4"></textarea>
 
     <label>Preferred Date:</label>
-    <input type="date" name="preferred_date">
+    <input type="text" name="preferred_date" id="preferred_date" placeholder="dd/mm/yyyy">
 
     <label>Preferred Time:</label>
     <input type="time" name="preferred_time">
@@ -42,23 +43,32 @@
     <button type="button" id="submitBtn">Submit</button>
   </div>
 
-  <!-- Amplify JS -->
+  <!-- JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
+
   <script>
-    // Configure Amplify
+    // Flatpickr 日期选择器
+    flatpickr("#preferred_date", {
+      dateFormat: "d/m/Y",  // dd/mm/yyyy 格式
+      allowInput: true
+    });
+
+    // Amplify 配置
     aws_amplify.Amplify.configure({
       Auth: {
-        identityPoolId: "YOUR_IDENTITY_POOL_ID",
-        region: "YOUR_REGION"
+        identityPoolId: "YOUR_IDENTITY_POOL_ID", // 填你的 Cognito Identity Pool ID
+        region: "ap-southeast-1"
       },
       Storage: {
         AWSS3: {
-          bucket: "YOUR_BUCKET_NAME",
-          region: "YOUR_REGION"
+          bucket: "www.tukanggo.my", // 你的 S3 bucket 名称
+          region: "ap-southeast-1"
         }
       }
     });
 
+    // 上传多张照片
     async function uploadPhotos(files) {
       const uploadedKeys = [];
       for (const file of files) {
@@ -69,9 +79,9 @@
       return uploadedKeys;
     }
 
+    // 提交表单
     async function submitForm(formData, photoKeys) {
-      // Replace with your AWS API Gateway URL
-      const apiUrl = "YOUR_API_GATEWAY_URL";
+      const apiUrl = "YOUR_API_GATEWAY_URL"; // 替换成你的 API Gateway URL
       await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,6 +90,7 @@
       alert("Form submitted successfully!");
     }
 
+    // 点击提交按钮
     document.getElementById("submitBtn").addEventListener("click", async () => {
       const formData = {
         name: document.querySelector('input[name="name"]').value,
