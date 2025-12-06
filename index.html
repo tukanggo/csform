@@ -37,74 +37,17 @@
     <label>Preferred Time:</label>
     <input type="time" name="preferred_time">
 
-    <label>Upload Pictures:</label>
-    <input type="file" name="photos" accept="image/*" multiple>
-
     <button type="button" id="submitBtn">Submit</button>
   </div>
 
   <!-- JS Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
 
   <script>
     // Flatpickr 日期选择器
     flatpickr("#preferred_date", {
-      dateFormat: "d/m/Y",  // dd/mm/yyyy 格式
+      dateFormat: "d/m/Y",
       allowInput: true
     });
 
-    // Amplify 配置
-    aws_amplify.Amplify.configure({
-      Auth: {
-        identityPoolId: "YOUR_IDENTITY_POOL_ID", // 填你的 Cognito Identity Pool ID
-        region: "ap-southeast-1"
-      },
-      Storage: {
-        AWSS3: {
-          bucket: "www.tukanggo.my", // 你的 S3 bucket 名称
-          region: "ap-southeast-1"
-        }
-      }
-    });
-
-    // 上传多张照片
-    async function uploadPhotos(files) {
-      const uploadedKeys = [];
-      for (const file of files) {
-        const key = `uploads/${Date.now()}-${file.name}`;
-        await aws_amplify.Storage.put(key, file, { contentType: file.type });
-        uploadedKeys.push(key);
-      }
-      return uploadedKeys;
-    }
-
-    // 提交表单
-    async function submitForm(formData, photoKeys) {
-      const apiUrl = "YOUR_API_GATEWAY_URL"; // 替换成你的 API Gateway URL
-      await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, photos: photoKeys })
-      });
-      alert("Form submitted successfully!");
-    }
-
-    // 点击提交按钮
-    document.getElementById("submitBtn").addEventListener("click", async () => {
-      const formData = {
-        name: document.querySelector('input[name="name"]').value,
-        address: document.querySelector('input[name="address"]').value,
-        contact: document.querySelector('input[name="contact"]').value,
-        requirement: document.querySelector('textarea[name="requirement"]').value,
-        preferred_date: document.querySelector('input[name="preferred_date"]').value,
-        preferred_time: document.querySelector('input[name="preferred_time"]').value
-      };
-
-      const files = document.querySelector('input[name="photos"]').files;
-      const photoKeys = await uploadPhotos(files);
-      await submitForm(formData, photoKeys);
-    });
-  </script>
-</body>
-</html>
+    // 提交表单（
