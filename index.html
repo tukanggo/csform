@@ -5,23 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customer Requirement Form</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    padding: 30px;
+}
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 12px;
+}
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    background: #45a049;
+}
+</style>
 </head>
 <body>
 <div class="container">
-  <h2>Customer Requirement Form</h2>
-  <input type="text" name="name" placeholder="Name">
-  <input type="text" name="address" placeholder="Address">
-  <input type="text" name="contact" placeholder="Contact">
-  <textarea name="requirement" placeholder="Requirement"></textarea>
-  <input type="text" id="preferred_date" placeholder="dd/mm/yyyy">
-  <input type="time" name="preferred_time">
-  <input type="file" name="photos" multiple>
-  <button id="submitBtn">Submit</button>
+    <h2>Customer Requirement Form</h2>
+
+    <label>Name:</label>
+    <input type="text" name="name">
+
+    <label>Address:</label>
+    <input type="text" name="address">
+
+    <label>Contact Number:</label>
+    <input type="text" name="contact">
+
+    <label>Requirement:</label>
+    <textarea name="requirement" rows="4"></textarea>
+
+    <label>Preferred Date:</label>
+    <input type="text" id="preferred_date" placeholder="dd/mm/yyyy">
+
+    <label>Preferred Time:</label>
+    <input type="time" name="preferred_time">
+
+    <label>Upload Pictures:</label>
+    <input type="file" name="photos" accept="image/*" multiple>
+
+    <button type="button" id="submitBtn">Submit</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
-
 <script>
 flatpickr("#preferred_date", { dateFormat: "d/m/Y" });
 
