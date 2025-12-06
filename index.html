@@ -42,41 +42,46 @@
     <button type="button" id="submitBtn">Submit</button>
   </div>
 
-  <!-- Amplify JS -->
-  <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
   <script>
-    // Configure Amplify
-    aws_amplify.Amplify.configure({
-      Auth: {
-        identityPoolId: "YOUR_IDENTITY_POOL_ID",
-        region: "YOUR_REGION"
-      },
-      Storage: {
-        AWSS3: {
-          bucket: "YOUR_BUCKET_NAME",
-          region: "YOUR_REGION"
-        }
-      }
-    });
-
-    async function uploadPhotos(files) {
-      const uploadedKeys = [];
-      for (const file of files) {
-        const key = `uploads/${Date.now()}-${file.name}`;
-        await aws_amplify.Storage.put(key, file, { contentType: file.type });
-        uploadedKeys.push(key);
-      }
-      return uploadedKeys;
+    // Function to upload files to S3 using pre-signed URL
+    async function uploadFileToS3(file, presignedUrl) {
+      await fetch(presignedUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type }
+      });
     }
 
-    async function submitForm(formData, photoKeys) {
-      // Replace with your AWS API Gateway URL
-      const apiUrl = "YOUR_API_GATEWAY_URL";
-      await fetch(apiUrl, {
+    async function submitForm(formData) {
+      // Replace with your API URL that returns presigned URLs for each file
+      const apiUrl = "YOUR_API_GATEWAY_FOR_PRESIGNED_URL";
+
+      const files = document.querySelector('input[name="photos"]').files;
+      let uploadedUrls = [];
+
+      for (const file of files) {
+        // Get presigned URL from your backend
+        const res = await fetch(apiUrl + "?filename=" + encodeURIComponent(file.name));
+        const data = await res.json();
+        const presignedUrl = data.url;
+
+        await uploadFileToS3(file, presignedUrl);
+
+        // The file will be accessible via this URL
+        uploadedUrls.push(data.accessUrl);
+      }
+
+      // Combine form data with uploaded URLs
+      const finalData = { ...formData, photos: uploadedUrls };
+
+      // Submit form data to your backend database API
+      const dbApiUrl = "YOUR_BACKEND_API_FOR_FORM";
+      await fetch(dbApiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, photos: photoKeys })
+        body: JSON.stringify(finalData)
       });
+
       alert("Form submitted successfully!");
     }
 
@@ -90,9 +95,7 @@
         preferred_time: document.querySelector('input[name="preferred_time"]').value
       };
 
-      const files = document.querySelector('input[name="photos"]').files;
-      const photoKeys = await uploadPhotos(files);
-      await submitForm(formData, photoKeys);
+      await submitForm(formData);
     });
   </script>
 </body>
