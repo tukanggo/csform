@@ -1,0 +1,24 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "准备安装依赖..."
+        - npm install
+    build:
+      commands:
+        - echo "构建网站..."
+  artifacts:
+    baseDirectory: /
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+
+backend:
+  phases:
+    build:
+      commands:
+        - echo "部署 Amplify 后端..."
+        - amplifyPush --simple

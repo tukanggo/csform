@@ -1,0 +1,12 @@
+{
+  "name": "customer-form-project",
+  "version": "1.0.0",
+  "description": "AWS Amplify Web Form Project",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in browser'"
+  },
+  "dependencies": {
+    "aws-amplify": "^5.0.0"
+  }
+}
