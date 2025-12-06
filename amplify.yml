@@ -3,11 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "准备安装依赖..."
+        - echo "Preparing dependencies..."
         - npm install
     build:
       commands:
-        - echo "构建网站..."
+        - echo "Building website..."
   artifacts:
     baseDirectory: /
     files:
@@ -20,5 +20,5 @@ backend:
   phases:
     build:
       commands:
-        - echo "部署 Amplify 后端..."
+        - echo "Deploying Amplify backend..."
         - amplifyPush --simple
