@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>客户需求表单</title>
+<title>Customer Requirement Form</title>
 <script src="https://unpkg.com/aws-amplify@latest/dist/aws-amplify.min.js"></script>
 <style>
 body { font-family: Arial; background: #f2f2f2; padding: 30px; }
@@ -15,27 +15,27 @@ button { margin-top: 20px; padding: 12px; width: 100%; background: #4CAF50; colo
 </head>
 <body>
 <div class="container">
-<h2>客户需求表单</h2>
+<h2>Customer Requirement Form</h2>
 
-<label>姓名：</label>
+<label>Name:</label>
 <input type="text" name="name" required>
 
-<label>地址：</label>
+<label>Address:</label>
 <input type="text" name="address" required>
 
-<label>联系电话：</label>
+<label>Contact Number:</label>
 <input type="text" name="contact" required>
 
-<label>需求内容：</label>
+<label>Requirement Details:</label>
 <textarea name="requirement" rows="4" required></textarea>
 
-<label>预约日期：</label>
+<label>Preferred Date:</label>
 <input type="date" name="preferred_date" required>
 
-<label>预约时间：</label>
+<label>Preferred Time:</label>
 <input type="time" name="preferred_time" required>
 
-<button type="button" id="submitBtn">提交</button>
+<button type="button" id="submitBtn">Submit</button>
 </div>
 
 <script>
@@ -44,7 +44,7 @@ aws_amplify.Amplify.configure({
         endpoints: [
             {
                 name: "FormAPI",
-                endpoint: "YOUR_AMPLIFY_API_ENDPOINT" // 替换为实际 API URL
+                endpoint: "YOUR_AMPLIFY_API_ENDPOINT" // Replace with your actual API URL
             }
         ]
     }
@@ -62,10 +62,10 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
     try {
         await aws_amplify.API.post("FormAPI", "/submit", { body: data });
-        alert("提交成功！");
+        alert("Form submitted successfully!");
     } catch (err) {
         console.error(err);
-        alert("提交失败，请重试！");
+        alert("Submission failed. Please try again!");
     }
 });
 </script>
